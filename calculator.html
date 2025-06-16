@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AI Voice Calculator</title>
+    <style>
+      body {
+        background: url("Your paragraph text.png") no-repeat center center fixed;
+        background-size: cover;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      .container {
+        background: rgba(245, 172, 223, 0.85);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        width: 90%;
+        max-width: 500px;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      button {
+        padding: 12px 25px;
+        font-size: 16px;
+        background-color: #4caf50;
+        color: rgb(228, 215, 229);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      p {
+        font-size: 18px;
+        margin: 15px 0;
+      }
+
+      span {
+        font-weight: bold;
+        color: #222;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎤 AI Voice Calculator</h1>
+      <button onclick="startListening()">Start Speaking</button>
+      <p><strong>You said:</strong> <span id="spoken">...</span></p>
+      <p><strong>Result:</strong> <span id="result">...</span></p>
+    </div>
+
+    <script>
+      function startListening() {
+        const recognition = new (window.SpeechRecognition ||
+          window.webkitSpeechRecognition)();
+        recognition.lang = "en-US";
+        recognition.start();
+
+        document.getElementById("spoken").textContent = "Listening...";
+
+        recognition.onresult = function (event) {
+          const spokenText = event.results[0][0].transcript;
+          document.getElementById("spoken").textContent = spokenText;
+
+          let expression = spokenText
+            .toLowerCase()
+            .replace(/plus/gi, "+")
+            .replace(/minus/gi, "-")
+            .replace(/into|times|multiply/gi, "*")
+            .replace(/divided by|divide|by/gi, "/")
+            .replace(/x/gi, "*");
+
+          try {
+            const result = eval(expression);
+            document.getElementById("result").textContent = result;
+            speak(`The result is ${result}`);
+          } catch (e) {
+            document.getElementById("result").textContent =
+              "Invalid expression.";
+            speak("Sorry, I couldn't calculate that.");
+          }
+        };
+
+        recognition.onerror = function () {
+          document.getElementById("spoken").textContent = "Recognition error.";
+        };
+      }
+
+      function speak(message) {
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = "en-US";
+        window.speechSynthesis.speak(utterance);
+      }
+    </script>
+  </body>
+</html>
